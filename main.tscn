@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://3mfckwgbmtka"]
+
+[ext_resource type="Texture2D" uid="uid://cwhkgdghi5v1s" path="res://background.jpg" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://caevk45jqkqsg" path="res://drawing.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://lxtolc30i163" path="res://rithmatics.gd" id="3_h2yge"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Background" type="Sprite2D" parent="."]
+modulate = Color(0.753984, 0.753984, 0.753984, 1)
+scale = Vector2(0.642593, 0.642593)
+texture = ExtResource("1_ig7tw")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Drawing" type="Node2D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_0xm2m")
+
+[node name="Rithmatics" type="Node2D" parent="."]
+script = ExtResource("3_h2yge")

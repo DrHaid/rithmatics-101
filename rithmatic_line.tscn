@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://750215ulqusl"]
+
+[ext_resource type="Shader" uid="uid://bn3fogi1ljqth" path="res://chalk_line.tres" id="1_084u5"]
+[ext_resource type="Texture2D" uid="uid://dj6p4ta50dhrw" path="res://noise_2d.tres" id="2_nt5om"]
+[ext_resource type="Script" uid="uid://c8achm1dwdtxw" path="res://rithmatic_line.gd" id="3_7tfru"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_084u5"]
+shader = ExtResource("1_084u5")
+shader_parameter/NoiseTexture = ExtResource("2_nt5om")
+
+[node name="RithmaticLine" type="Line2D"]
+material = SubResource("ShaderMaterial_084u5")
+points = PackedVector2Array(0, 0, 48, 48, 137, 90, 236, 98)
+width = 15.0
+texture_mode = 1
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("3_7tfru")
