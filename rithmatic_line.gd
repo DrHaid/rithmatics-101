@@ -40,6 +40,12 @@ func _build_collider() -> void:
         var point := points[i]
         if i < points.size() - 1:   # if last point use previous direction
             dir = (points[i + 1] - point).normalized()
+
+        if i == 0:
+            point = point - dir * 7    # move first point back to cover beninging
+        elif i == points.size() - 1:
+            point = point + dir * 7    # move last point forward to cover end
+
         var a:= point + (dir.rotated(PI / 2) * line_width)
         var b:= point - (dir.rotated(PI / 2) * line_width)
         #TODO: extend first and last points outwards to cover caps
