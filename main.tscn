@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://3mfckwgbmtka"]
 
-[ext_resource type="Texture2D" uid="uid://cwhkgdghi5v1s" path="res://background.jpg" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://caevk45jqkqsg" path="res://drawing.gd" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://lxtolc30i163" path="res://rithmatics.gd" id="3_h2yge"]
+[ext_resource type="Texture2D" uid="uid://cwhkgdghi5v1s" path="res://drawing/background.jpg" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://caevk45jqkqsg" path="res://drawing/drawing.gd" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://lxtolc30i163" path="res://rithmatics/rithmatics.gd" id="3_h2yge"]
 
 [node name="Node2D" type="Node2D"]
 
