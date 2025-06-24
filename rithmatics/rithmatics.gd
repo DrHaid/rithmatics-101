@@ -27,6 +27,7 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 
     line.debug = debug_draw
     line.update_line()
+    find_junctions(line)
     lines.append(line)
 
 func check_straight_line(points: Array[Vector2]) -> bool:
@@ -112,10 +113,17 @@ func check_circle(points: Array[Vector2]) -> float:
 
     return 1
 
-func draw_debug(point: Vector2, point_two: Variant = null) -> void:
+func find_junctions(new_line: RithmaticLine) -> void:
+    for line: RithmaticLine in lines:
+        var intersections := new_line.check_intersection(line.points, 8)
+        for intersection: Vector2 in intersections:
+            draw_debug(intersection, Color.BLUE)
+
+func draw_debug(point: Vector2, color: Color = Color.RED, point_two: Variant = null) -> void:
     var debug_line: Line2D = debug_line_template.instantiate()
     add_child(debug_line)
 
+    debug_line.default_color = color
     debug_line.clear_points()
     debug_line.add_point(point)
     debug_line.add_point(point + Vector2(0.1, 0.1))
