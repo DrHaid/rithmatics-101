@@ -11,9 +11,6 @@ var current_mouse_pos: Vector2 = Vector2.ZERO
 var line_template: PackedScene = load("res://rithmatics/rithmatic_line.tscn")
 var current_line: RithmaticLine
 
-func _ready() -> void:
-	pass
-
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		is_clicked = event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT
@@ -23,12 +20,16 @@ func _input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	if not is_clicked and current_line:
 		# finish current line
-		line_finished.emit(current_line)
+		if current_line.points.size() < 2:
+			current_line.queue_free()
+		else:
+			line_finished.emit(current_line)
 		current_line = null
 	
 	if is_clicked and not current_line:
 		# start new line
 		current_line = line_template.instantiate()
+		current_line.name = "RithmaticLine_" + Utils.gen_uuid()
 		current_line.clear_points()
 		current_line.add_point(current_mouse_pos)
 		add_child(current_line)

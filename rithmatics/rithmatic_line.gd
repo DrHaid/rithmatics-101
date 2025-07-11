@@ -3,13 +3,32 @@ class_name RithmaticLine
 
 enum Type { NONE, WARDING, FORBIDDENCE, VIGOR, MAKING }
 
+signal dismiss_line(line: RithmaticLine)
+
 var line_type: Type = Type.NONE
 var strength: float = 0
 var debug_color: Color = Color.WHITE
 
 var debug: bool = false
+var timer: Timer = Timer.new()
 
-@onready var collision_polygon: CollisionPolygon2D = $StaticBody2D/CollisionShape2D
+@onready var static_body: StaticBody2D = $StaticBody2D
+
+func _ready() -> void:
+	static_body.connect("hold_start", _on_static_body_hold_start)
+	static_body.connect("hold_end", _on_static_body_hold_end)
+	timer.connect("timeout", _on_timer_timeout)
+	timer.wait_time = 4		#TODO: make adjustable in debug
+	add_child(timer)
+
+func _on_static_body_hold_start() -> void:
+	timer.start()
+
+func _on_static_body_hold_end() -> void:
+	timer.stop()
+
+func _on_timer_timeout() -> void:
+	dismiss_line.emit(self)
 
 func update_line() -> void:
 	match line_type:
@@ -29,27 +48,21 @@ func update_line() -> void:
 	else:
 		default_color = Color.WHITE
 
-	_build_collider()
+	_create_colliders()
 
-func _build_collider() -> void:
-	var line_width := width * 0.3     # use halfed width because shader fades edges
-	var polygon_side_a: Array[Vector2] = []
-	var polygon_side_b: Array[Vector2] = []
-	var dir := Vector2.ZERO
-	for i in range(0, points.size()):
-		var point := points[i]
-		if i < points.size() - 1:   # if last point use previous direction
-			dir = (points[i + 1] - point).normalized()
-
-		if i == 0:
-			point = point - dir * 7    # move first point back to cover beninging
-		elif i == points.size() - 1:
-			point = point + dir * 7    # move last point forward to cover end
-
-		var a:= point + (dir.rotated(PI / 2) * line_width)
-		var b:= point - (dir.rotated(PI / 2) * line_width)
-		polygon_side_a.append(a)
-		polygon_side_b.append(b)
-	polygon_side_b.reverse()
-	collision_polygon.polygon = polygon_side_a + polygon_side_b
-
+func _create_colliders() -> void:
+	var colliders: Array[CollisionShape2D] = []
+	for i in range(0, points.size() - 1):
+		var a := points[i]
+		var b := points[i + 1]#
+		var half_way := (a + b) / 2
+		var angle := (b - a).angle() - (PI / 2)
+		var capsule := CapsuleShape2D.new()
+		capsule.radius = width * 0.3
+		capsule.height = (b - a).length() + (capsule.radius * 2)	# adding overlap to ensure coverage
+		var collider := CollisionShape2D.new()
+		collider.shape = capsule
+		collider.rotation = angle
+		collider.global_position = half_way
+		colliders.append(collider)
+		static_body.add_child(collider)

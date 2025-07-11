@@ -18,12 +18,17 @@ func _ready() -> void:
 func _on_drawing_line_finished(line: RithmaticLine) -> void:
     var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation)
     line.line_type = classification.type
-    line.strength = classification.strength
-    
+    line.strength = classification.strength    
     line.debug = debug_draw
+    line.connect("dismiss_line", _on_dismiss_line)
     line.update_line()
     find_junctions(line)
     lines.append(line)
+
+func _on_dismiss_line(line: RithmaticLine) -> void:
+    var index := lines.find(line)
+    lines.remove_at(index)
+    line.queue_free()
 
 func find_junctions(new_line: RithmaticLine) -> void:
     for line: RithmaticLine in lines:
