@@ -1,4 +1,4 @@
-[gd_resource type="VisualShader" load_steps=19 format=3 uid="uid://bn3fogi1ljqth"]
+[gd_resource type="VisualShader" load_steps=20 format=3 uid="uid://bn3fogi1ljqth"]
 
 [sub_resource type="VisualShaderNodeFloatOp" id="VisualShaderNodeFloatOp_rl14j"]
 output_port_for_preview = 0
@@ -48,6 +48,12 @@ noise = SubResource("FastNoiseLite_rl14j")
 source = 5
 texture = SubResource("NoiseTexture2D_eln1c")
 
+[sub_resource type="VisualShaderNodeFloatParameter" id="VisualShaderNodeFloatParameter_hd3hu"]
+parameter_name = "Dissolve"
+max = 5.0
+default_value_enabled = true
+default_value = 1.95
+
 [sub_resource type="VisualShaderNodeInput" id="VisualShaderNodeInput_nolk6"]
 input_name = "uv"
 
@@ -73,6 +79,7 @@ code = "shader_type canvas_item;
 render_mode blend_mix;
 
 uniform sampler2D NoiseTexture : source_color, repeat_enable;
+uniform float Dissolve = 1.95000004768372;
 
 
 
@@ -118,9 +125,12 @@ void fragment() {
 	float n_out12p0 = n_out11p1 - n_in12p1;
 
 
+// FloatParameter:20
+	float n_out20p0 = Dissolve;
+
+
 // FloatOp:15
-	float n_in15p1 = 1.97500;
-	float n_out15p0 = n_out12p0 * n_in15p1;
+	float n_out15p0 = n_out12p0 * n_out20p0;
 
 
 // FloatFunc:13
@@ -152,6 +162,7 @@ void fragment() {
 
 }
 "
+graph_offset = Vector2(-1443.16, 768.495)
 mode = 1
 flags/light_only = false
 nodes/fragment/0/position = Vector2(1480, 0)
@@ -187,4 +198,6 @@ nodes/fragment/18/node = SubResource("VisualShaderNodeInput_rl14j")
 nodes/fragment/18/position = Vector2(-860, -220)
 nodes/fragment/19/node = SubResource("VisualShaderNodeColorOp_eln1c")
 nodes/fragment/19/position = Vector2(860, -360)
-nodes/fragment/connections = PackedInt32Array(4, 0, 2, 0, 5, 0, 2, 2, 3, 0, 4, 0, 6, 0, 11, 0, 13, 0, 9, 1, 11, 1, 12, 0, 9, 0, 10, 0, 2, 0, 14, 0, 10, 0, 14, 1, 12, 0, 15, 0, 15, 0, 13, 0, 14, 0, 16, 0, 2, 0, 17, 0, 17, 0, 19, 0, 18, 0, 19, 1, 19, 0, 0, 0, 16, 0, 0, 1)
+nodes/fragment/20/node = SubResource("VisualShaderNodeFloatParameter_hd3hu")
+nodes/fragment/20/position = Vector2(-1020, 960)
+nodes/fragment/connections = PackedInt32Array(4, 0, 2, 0, 5, 0, 2, 2, 3, 0, 4, 0, 6, 0, 11, 0, 13, 0, 9, 1, 11, 1, 12, 0, 9, 0, 10, 0, 2, 0, 14, 0, 10, 0, 14, 1, 12, 0, 15, 0, 15, 0, 13, 0, 14, 0, 16, 0, 2, 0, 17, 0, 17, 0, 19, 0, 18, 0, 19, 1, 19, 0, 0, 0, 16, 0, 0, 1, 20, 0, 15, 1)

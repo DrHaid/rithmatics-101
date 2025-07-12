@@ -6,8 +6,10 @@
 [ext_resource type="Script" uid="uid://bjoxv0smoc74p" path="res://rithmatics/line_input_handler.gd" id="4_57lhp"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_084u5"]
+resource_local_to_scene = true
 shader = ExtResource("1_084u5")
 shader_parameter/NoiseTexture = ExtResource("2_nt5om")
+shader_parameter/Dissolve = 1.95
 
 [node name="RithmaticLine" type="Line2D"]
 material = SubResource("ShaderMaterial_084u5")

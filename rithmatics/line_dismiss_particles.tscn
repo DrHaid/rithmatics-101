@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://bgq24vpg0j8h7"]
+
+[node name="LineDismissParticles" type="CPUParticles2D"]
+emitting = false
+amount = 128
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+lifetime_randomness = 0.6
+emission_shape = 4
+emission_points = PackedVector2Array(0, 0, 48, 48, 137, 90, 236, 98)
+emission_colors = PackedColorArray()
+direction = Vector2(0, 0)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 15.0
+initial_velocity_max = 45.0

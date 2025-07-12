@@ -6,9 +6,11 @@ class_name Rithmatics
 @export var max_circle_gap: float = 15
 @export var max_circle_deviation: float = 0.3   # radius deviation in percent
 @export var max_line_deviation: float = 20     # angle deviation in degrees
+@export var dismiss_time: float = 4
 @export var debug_draw: bool = true
 
 var debug_line_template: PackedScene = load("res://debug_line.tscn")
+var line_dismiss_particles: PackedScene = load("res://rithmatics/line_dismiss_particles.tscn")
 
 var lines: Array[RithmaticLine] = []
 
@@ -18,14 +20,22 @@ func _ready() -> void:
 func _on_drawing_line_finished(line: RithmaticLine) -> void:
     var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation)
     line.line_type = classification.type
-    line.strength = classification.strength    
+    line.strength = classification.strength
     line.debug = debug_draw
+    line.dismiss_timeout = dismiss_time
     line.connect("dismiss_line", _on_dismiss_line)
     line.update_line()
     find_junctions(line)
     lines.append(line)
 
 func _on_dismiss_line(line: RithmaticLine) -> void:
+    var particles: CPUParticles2D = line_dismiss_particles.instantiate()
+    particles.emission_points = line.points
+    particles.amount = line.points.size() * 25
+    particles.emitting = true
+    particles.connect("finished", particles.queue_free)
+    add_child(particles)
+
     var index := lines.find(line)
     lines.remove_at(index)
     line.queue_free()
