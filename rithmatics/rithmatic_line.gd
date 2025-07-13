@@ -63,8 +63,18 @@ func update_line() -> void:
 		default_color = debug_color
 	else:
 		default_color = Color.WHITE
-
 	_create_colliders()
+
+func update_line_props(dict: Dictionary) -> void:
+	if dict.has("strength"):
+		strength = dict.strength
+	if dict.has("line_type"):
+		line_type = dict.line_type
+	if dict.has("debug"):
+		debug = dict.debug
+	if dict.has("dismiss_timeout"):
+		dismiss_timeout = dict.dismiss_timeout
+	update_line()
 
 func _create_colliders() -> void:
 	var colliders: Array[CollisionShape2D] = []
