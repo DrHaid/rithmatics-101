@@ -6,6 +6,7 @@ class_name Rithmatics
 @export var max_circle_gap: float = 15
 @export var max_circle_deviation: float = 0.3   # radius deviation in percent
 @export var max_line_deviation: float = 20     # angle deviation in degrees
+@export var max_sine_deviation: float = 0     # angle deviation in degrees
 @export var dismiss_time: float = 4
 @export var debug_draw: bool = true
 
@@ -20,7 +21,8 @@ func _ready() -> void:
 	drawing.connect("line_finished", _on_drawing_line_finished)
 
 func _on_drawing_line_finished(line: RithmaticLine) -> void:
-	var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation)
+	var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation, max_sine_deviation)
+	draw_debug(line.get_point_position(0), Color.DEEP_PINK, line.get_point_position(0) + Vector2.RIGHT.rotated(classification.strength) * 100)
 	line.update_line_props({
 		"line_type": classification.type,
 		"strength": classification.strength,
@@ -28,7 +30,7 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 		"dismiss_timeout": dismiss_time
 	})
 	line.connect("dismiss_line", _on_dismiss_line)
-	find_junctions(line)
+	# find_junctions(line)
 	lines.append(line)
 
 func _on_dismiss_line(line: RithmaticLine) -> void:
@@ -81,6 +83,6 @@ func draw_debug(point: Vector2, color: Color = Color.RED, point_two: Variant = n
 	debug_line.clear_points()
 	debug_line.add_point(point)
 	debug_line.add_point(point + Vector2(0.1, 0.1))
-
+	
 	if point_two is Vector2:
 		debug_line.add_point(point_two)

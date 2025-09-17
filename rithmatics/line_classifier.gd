@@ -2,15 +2,20 @@ extends RefCounted
 class_name LineClassifier
 
 static func classify(points: Array[Vector2], max_line_deviation: float,
-					 max_circle_gap: float, max_circle_deviation: float) -> Dictionary:
-	if _is_straight_line(points, max_line_deviation):
-		return {"type": RithmaticLine.Type.FORBIDDENCE, "strength": 1.0}
+					 max_circle_gap: float, max_circle_deviation: float,
+					 max_sine_deviation: float) -> Dictionary:
+	# if _is_straight_line(points, max_line_deviation):
+	# 	return {"type": RithmaticLine.Type.FORBIDDENCE, "strength": 1.0}
 	
-	var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
-	if circle_score > 0.5:
-		return {"type": RithmaticLine.Type.WARDING, "strength": circle_score}
+	# var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
+	# if circle_score > 0.5:
+	# 	return {"type": RithmaticLine.Type.WARDING, "strength": circle_score}
 	
-	return {"type": RithmaticLine.Type.NONE, "strength": 0.0}
+	var sine_score := _check_sine(points, max_sine_deviation)
+	# if sine_score > 0.5:
+	return {"type": RithmaticLine.Type.VIGOR, "strength": sine_score}
+
+	# return {"type": RithmaticLine.Type.NONE, "strength": 0.0}
 
 static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> bool:
 	if points.size() < 5:
@@ -72,3 +77,30 @@ static func _check_circle_closed(points: Array[Vector2], max_gap: float) -> Arra
 	if gap < max_gap:
 		return [true, overshoot_start]
 	return [false, 0]
+
+static func _check_sine(points: Array[Vector2], _max_deviation: float) -> float:
+	var pca_result := principal_axis_angle(points)
+	return pca_result.angle
+
+## determine x-axis of sine wave by doing some matrix shid, Chad Chippity said so
+static func principal_axis_angle(points: Array) -> Dictionary:
+	var n := points.size()
+	var centroid := Vector2.ZERO
+	for p: Vector2 in points:
+		centroid += p
+	centroid /= n
+	var sxx: float = 0.0
+	var syy: float = 0.0
+	var sxy: float = 0.0
+	for p: Vector2 in points:
+		var dx: float = p.x - centroid.x
+		var dy: float = p.y - centroid.y
+		sxx += dx * dx
+		syy += dy * dy
+		sxy += dx * dy
+	sxx /= n
+	syy /= n
+	sxy /= n
+	# analytic PCA angle for 2x2 covariance something something big words:
+	var angle := 0.5 * atan2(2.0 * sxy, sxx - syy)
+	return { "angle": angle, "centroid": centroid }
