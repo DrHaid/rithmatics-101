@@ -22,7 +22,6 @@ func _ready() -> void:
 
 func _on_drawing_line_finished(line: RithmaticLine) -> void:
 	var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation, max_sine_deviation)
-	draw_debug(line.get_point_position(0), Color.DEEP_PINK, line.get_point_position(0) + Vector2.RIGHT.rotated(classification.strength) * 100)
 	line.update_line_props({
 		"line_type": classification.type,
 		"strength": classification.strength,
@@ -30,7 +29,7 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 		"dismiss_timeout": dismiss_time
 	})
 	line.connect("dismiss_line", _on_dismiss_line)
-	# find_junctions(line)
+	find_junctions(line)
 	lines.append(line)
 
 func _on_dismiss_line(line: RithmaticLine) -> void:

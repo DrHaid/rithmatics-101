@@ -4,18 +4,18 @@ class_name LineClassifier
 static func classify(points: Array[Vector2], max_line_deviation: float,
 					 max_circle_gap: float, max_circle_deviation: float,
 					 max_sine_deviation: float) -> Dictionary:
-	# if _is_straight_line(points, max_line_deviation):
-	# 	return {"type": RithmaticLine.Type.FORBIDDENCE, "strength": 1.0}
+	if _is_straight_line(points, max_line_deviation):
+		return {"type": RithmaticLine.Type.FORBIDDENCE, "strength": 1.0}
 	
-	# var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
-	# if circle_score > 0.5:
-	# 	return {"type": RithmaticLine.Type.WARDING, "strength": circle_score}
+	var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
+	if circle_score > 0.5:
+		return {"type": RithmaticLine.Type.WARDING, "strength": circle_score}
 	
-	var sine_score := _check_sine(points, max_sine_deviation)
-	# if sine_score > 0.5:
-	return {"type": RithmaticLine.Type.VIGOR, "strength": sine_score}
+	var sine_check_result := _check_sine(points, max_sine_deviation)
+	if sine_check_result.score > 0.5:
+		return {"type": RithmaticLine.Type.VIGOR, "strength": sine_check_result.score, "angle": sine_check_result.angle}
 
-	# return {"type": RithmaticLine.Type.NONE, "strength": 0.0}
+	return {"type": RithmaticLine.Type.NONE, "strength": 0.0}
 
 static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> bool:
 	if points.size() < 5:
@@ -78,9 +78,24 @@ static func _check_circle_closed(points: Array[Vector2], max_gap: float) -> Arra
 		return [true, overshoot_start]
 	return [false, 0]
 
-static func _check_sine(points: Array[Vector2], _max_deviation: float) -> float:
+static func _check_sine(points: Array[Vector2], _max_deviation: float) -> Dictionary:
 	var pca_result := principal_axis_angle(points)
-	return pca_result.angle
+	var refined_points := rotate_and_center_points(points, pca_result.centroid, pca_result.angle)
+
+	# separate axes
+	var ys: Array[float] = []
+	var xs: Array[float] = []
+	for p: Vector2 in refined_points:
+		xs.append(p.x)
+		ys.append(p.y)
+
+	var pt := find_peaks_and_troughs(ys)
+	var zero_crossings := count_zero_crossings(ys)
+
+	# TODO: refine this if not precise enough
+	var is_sine: bool = pt.peaks.size() >= 2 and pt.troughs.size() >= 2 and zero_crossings >= 6
+
+	return { "angle": pca_result.angle, "score": 1.0 if is_sine else 0.0 }
 
 ## determine x-axis of sine wave by doing some matrix shid, Chad Chippity said so
 static func principal_axis_angle(points: Array) -> Dictionary:
@@ -104,3 +119,30 @@ static func principal_axis_angle(points: Array) -> Dictionary:
 	# analytic PCA angle for 2x2 covariance something something big words:
 	var angle := 0.5 * atan2(2.0 * sxy, sxx - syy)
 	return { "angle": angle, "centroid": centroid }
+
+static func rotate_and_center_points(points: Array[Vector2], pivot: Vector2, angle: float) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for p: Vector2 in points:
+		out.append((p - pivot).rotated(-angle))
+	return out
+
+static func find_peaks_and_troughs(y_vals: Array[float]) -> Dictionary:
+	var peaks: Array[float] = []
+	var troughs: Array[float] = []
+	for i in range(1, y_vals.size() - 1):
+		if y_vals[i] > y_vals[i - 1] and y_vals[i] >= y_vals[i + 1]:
+			peaks.append(y_vals[i])
+		elif y_vals[i] < y_vals[i - 1] and y_vals[i] <= y_vals[i + 1]:
+			troughs.append(y_vals[i])
+	return { "peaks": peaks, "troughs": troughs }
+
+static func count_zero_crossings(vals: Array[float], min_delta: float = 0.0) -> int:
+	var count: int = 0
+	for i: int in range(vals.size() - 1):
+		var a: float = vals[i]
+		var b: float = vals[i + 1]
+		if a == 0.0 or b == 0.0:
+			continue
+		if a * b < 0.0 and abs(b - a) > min_delta:
+			count += 1
+	return count
