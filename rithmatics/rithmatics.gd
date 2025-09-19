@@ -28,6 +28,12 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 		"debug": debug_draw,
 		"dismiss_timeout": dismiss_time
 	})
+
+	if line.line_type == RithmaticLine.Type.VIGOR:
+		# TODO: handle lines of vigor behavior
+		_on_dismiss_line(line)
+		return
+
 	line.connect("dismiss_line", _on_dismiss_line)
 	find_junctions(line)
 	lines.append(line)
@@ -42,7 +48,8 @@ func _on_dismiss_line(line: RithmaticLine) -> void:
 
 	remove_junctions(line)
 	var index := lines.find(line)
-	lines.remove_at(index)
+	if index >= 0:
+		lines.remove_at(index)
 	line.queue_free()
 
 func find_junctions(new_line: RithmaticLine) -> void:

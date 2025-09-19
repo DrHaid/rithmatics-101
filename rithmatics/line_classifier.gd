@@ -92,7 +92,7 @@ static func _check_sine(points: Array[Vector2], _max_deviation: float) -> Dictio
 	var pt := find_peaks_and_troughs(ys)
 	var zero_crossings := count_zero_crossings(ys)
 
-	# TODO: refine this if not precise enough
+	# TODO: refine this: check amplitude
 	var is_sine: bool = pt.peaks.size() >= 2 and pt.troughs.size() >= 2 and zero_crossings >= 6
 
 	return { "angle": pca_result.angle, "score": 1.0 if is_sine else 0.0 }
