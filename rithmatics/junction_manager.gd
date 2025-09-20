@@ -1,6 +1,46 @@
 extends RefCounted
 class_name JunctionManager
 
+var junctions: Array[Junction] = []
+var debug_junctions: Array[Line2D] = []
+
+var debug_line_template: PackedScene = load("res://debug_line.tscn")
+
+func _init() -> void:
+	junctions = []
+
+func add_junctions(new_line: RithmaticLine, lines: Array[RithmaticLine]) -> void:
+	for line: RithmaticLine in lines:
+		var intersections := JunctionManager.find_intersections(new_line.points, line.points, 8)
+		for intersection: Vector2 in intersections:
+			var junction := Junction.new(intersection, new_line)
+			junction.add_line(line)
+			junctions.append(junction)
+
+func remove_junctions(removed_line: RithmaticLine) -> void:
+	var to_remove: Array[Junction] = []
+	for j: Junction in junctions:
+		j.remove_line(removed_line)
+		if not j.is_valid():
+			to_remove.append(j)
+	for r in to_remove:
+		junctions.erase(r)
+
+func debug_draw_junctions(parent: Node, color: Color) -> void:
+	for junc in debug_junctions:
+		junc.queue_free()
+	debug_junctions.clear()
+	
+	for junc: Junction in junctions:
+		var debug_line: Line2D = debug_line_template.instantiate()
+		parent.add_child(debug_line)
+		debug_junctions.append(debug_line)
+
+		debug_line.default_color = color
+		debug_line.clear_points()
+		debug_line.add_point(junc.position)
+		debug_line.add_point(junc.position + Vector2(0.1, 0.1))
+
 static func find_intersections(line_a: Array[Vector2], line_b: Array[Vector2], buffer: float) -> Array[Vector2]:
 	var intersections: Array[Vector2] = []
 	var close_segments: Array[Vector2] = []
