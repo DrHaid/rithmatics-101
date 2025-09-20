@@ -1,14 +1,9 @@
 extends Line2D
 class_name RithmaticLine
 
-enum Type { NONE, WARDING, FORBIDDENCE, VIGOR, MAKING }
-
 signal dismiss_line(line: RithmaticLine)
 
-var line_type: Type = Type.NONE
-var strength: float = 0
-var debug_color: Color = Color.WHITE
-var dismiss_timeout: float = 4
+var data: RithmaticLineData = RithmaticLineData.new()
 
 var tween: Tween
 var debug: bool = false
@@ -23,14 +18,14 @@ func _ready() -> void:
 	static_body.connect("hold_start", _on_static_body_hold_start)
 	static_body.connect("hold_end", _on_static_body_hold_end)
 	timer.connect("timeout", _on_timer_timeout)
-	timer.wait_time = dismiss_timeout
+	timer.wait_time = data.dismiss_timeout
 	add_child(timer)
 	start_line_dissolve = material.get("shader_parameter/Dissolve")
 	end_line_dissolve = 5.5
 
 func _on_static_body_hold_start() -> void:
 	timer.start()	
-	tween_dissolve_line(end_line_dissolve, dismiss_timeout)
+	tween_dissolve_line(end_line_dissolve, data.dismiss_timeout)
 
 func _on_static_body_hold_end() -> void:
 	timer.stop()
@@ -45,36 +40,11 @@ func tween_dissolve_line(target: float, time: float) -> void:
 func _on_timer_timeout() -> void:
 	dismiss_line.emit(self)
 
-func update_line() -> void:
-	timer.wait_time = dismiss_timeout
-	match line_type:
-		Type.WARDING:
-			debug_color = Color.YELLOW
-		Type.FORBIDDENCE:
-			debug_color = Color.RED
-		Type.VIGOR:
-			debug_color = Color.GREEN
-		Type.MAKING:
-			debug_color = Color.BLUE
-		Type.NONE:
-			debug_color = Color.WHITE
-
-	if debug:
-		default_color = debug_color
-	else:
-		default_color = Color.WHITE
+func update_line(new_data: RithmaticLineData) -> void:
+	data = new_data
+	timer.wait_time = data.dismiss_timeout
+	default_color = data.color
 	_create_colliders()
-
-func update_line_props(dict: Dictionary) -> void:
-	if dict.has("strength"):
-		strength = dict.strength
-	if dict.has("line_type"):
-		line_type = dict.line_type
-	if dict.has("debug"):
-		debug = dict.debug
-	if dict.has("dismiss_timeout"):
-		dismiss_timeout = dict.dismiss_timeout
-	update_line()
 
 func _create_colliders() -> void:
 	var colliders: Array[CollisionShape2D] = []

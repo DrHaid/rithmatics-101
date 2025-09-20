@@ -22,14 +22,15 @@ func _ready() -> void:
 
 func _on_drawing_line_finished(line: RithmaticLine) -> void:
 	var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation, max_sine_deviation)
-	line.update_line_props({
-		"line_type": classification.type,
-		"strength": classification.strength,
-		"debug": debug_draw,
-		"dismiss_timeout": dismiss_time
-	})
+	var data := RithmaticLineData.new(
+		classification.type,
+		classification.strength,
+		dismiss_time,
+		debug_draw
+	)
+	line.update_line(data)
 
-	if line.line_type == RithmaticLine.Type.VIGOR:
+	if line.data.line_type == RithmaticLineData.LineType.VIGOR:
 		# TODO: handle lines of vigor behavior
 		_on_dismiss_line(line)
 		return

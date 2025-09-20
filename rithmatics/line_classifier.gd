@@ -5,17 +5,17 @@ static func classify(points: Array[Vector2], max_line_deviation: float,
 					 max_circle_gap: float, max_circle_deviation: float,
 					 max_sine_deviation: float) -> Dictionary:
 	if _is_straight_line(points, max_line_deviation):
-		return {"type": RithmaticLine.Type.FORBIDDENCE, "strength": 1.0}
+		return {"type": RithmaticLineData.LineType.FORBIDDENCE, "strength": 1.0}
 	
 	var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
 	if circle_score > 0.5:
-		return {"type": RithmaticLine.Type.WARDING, "strength": circle_score}
+		return {"type": RithmaticLineData.LineType.WARDING, "strength": circle_score}
 	
 	var sine_check_result := _check_sine(points, max_sine_deviation)
 	if sine_check_result.score > 0.5:
-		return {"type": RithmaticLine.Type.VIGOR, "strength": sine_check_result.score, "angle": sine_check_result.angle}
+		return {"type": RithmaticLineData.LineType.VIGOR, "strength": sine_check_result.score, "angle": sine_check_result.angle}
 
-	return {"type": RithmaticLine.Type.NONE, "strength": 0.0}
+	return {"type": RithmaticLineData.LineType.NONE, "strength": 0.0}
 
 static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> bool:
 	if points.size() < 5:
