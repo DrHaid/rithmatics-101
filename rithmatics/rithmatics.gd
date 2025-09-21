@@ -24,6 +24,7 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 	var classification := LineClassifier.classify(line.points, max_line_deviation, max_circle_gap, max_circle_deviation, max_sine_deviation)
 	var data := RithmaticLineData.new(
 		classification.type,
+		classification.clean_line,
 		classification.strength,
 		dismiss_time,
 		debug_draw

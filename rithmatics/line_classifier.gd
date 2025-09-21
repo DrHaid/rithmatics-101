@@ -1,21 +1,30 @@
 extends RefCounted
 class_name LineClassifier
 
+## returns Dictionary:
+## [codeblock]
+## {
+##	"type": RithmaticLineData.LineType
+##	"strength": float
+##	"angle": float (optional, only for lines of vigor)
+##	"clean_line": Array[Vector2] (cleaned up representation of the line for calculations)
+## }
+## [/codeblock]
 static func classify(points: Array[Vector2], max_line_deviation: float,
 					 max_circle_gap: float, max_circle_deviation: float,
 					 max_sine_deviation: float) -> Dictionary:
 	if _is_straight_line(points, max_line_deviation):
-		return {"type": RithmaticLineData.LineType.FORBIDDENCE, "strength": 1.0}
+		return {"type": RithmaticLineData.LineType.FORBIDDENCE, "strength": 1.0, "clean_line": points}
 	
-	var circle_score := _check_circle(points, max_circle_gap, max_circle_deviation)
-	if circle_score > 0.5:
-		return {"type": RithmaticLineData.LineType.WARDING, "strength": circle_score}
+	var circle_result := _check_circle(points, max_circle_gap, max_circle_deviation)
+	if circle_result.score > 0.5:
+		return {"type": RithmaticLineData.LineType.WARDING, "strength": circle_result.score, "clean_line": circle_result.clean_line}
 	
 	var sine_check_result := _check_sine(points, max_sine_deviation)
 	if sine_check_result.score > 0.5:
-		return {"type": RithmaticLineData.LineType.VIGOR, "strength": sine_check_result.score, "angle": sine_check_result.angle}
+		return {"type": RithmaticLineData.LineType.VIGOR, "strength": sine_check_result.score, "clean_line": points, "angle": sine_check_result.angle}
 
-	return {"type": RithmaticLineData.LineType.NONE, "strength": 0.0}
+	return {"type": RithmaticLineData.LineType.NONE, "strength": 0.0, "clean_line": points}
 
 static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> bool:
 	if points.size() < 5:
@@ -33,14 +42,21 @@ static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> b
 			return false
 	return true
 
-static func _check_circle(points: Array[Vector2], max_gap: float, max_deviation: float) -> float:
-	var result: Array = _check_circle_closed(points, max_gap)
-	if not result[0]:
-		return 0
+## returns Dictionary:
+## [codeblock]
+## {
+##	"score": float (how much circle is the circle)
+##	"clean_line": Array[Vector2] (cleaned up representation of the line for calculations)
+## }
+## [/codeblock]
+static func _check_circle(points: Array[Vector2], max_gap: float, max_deviation: float) -> Dictionary:
+	var result: Dictionary = _check_circle_closed(points, max_gap)
+	if not result.is_loop:
+		return {"score": 0, "clean_line": points}
 
-	points = points.slice(0, result[1])
+	points = points.slice(0, result.loop_end)
 	if points.size() < 5:
-		return 0 
+		return {"score": 0, "clean_line": points}
 	
 	var center := Vector2.ZERO
 	for p: Vector2 in points:
@@ -54,14 +70,21 @@ static func _check_circle(points: Array[Vector2], max_gap: float, max_deviation:
 
 	for dist in distances:
 		if abs(dist - average_radius) > average_radius * max_deviation:
-			return 0
+			return {"score": 0, "clean_line": points}
 
-	return 1
+	return {"score": 1, "clean_line": points}
 
-static func _check_circle_closed(points: Array[Vector2], max_gap: float) -> Array:
+## returns Dictionary:
+## [codeblock]
+## {
+##	"is_loop": bool (is the line actually a closed-ish loop)
+##	"loop_end": int (index of segment that closes loop (excludes overshoot))
+## }
+## [/codeblock]
+static func _check_circle_closed(points: Array[Vector2], max_gap: float) -> Dictionary:
 	var gap := points[0].distance_to(points[-1])
 	if gap < max_gap:
-		return [true, points.size() - 1]
+		return {"is_loop": true, "loop_end": points.size() - 1}
 
 	var overshoot_start := points.size() - 1
 	for i in range(points.size() - 2, -1, -1):
@@ -72,11 +95,11 @@ static func _check_circle_closed(points: Array[Vector2], max_gap: float) -> Arra
 		else:
 			break
 		if i == 0:
-			return [false, 0]
+			return {"is_loop": false, "loop_end": 0}
 
 	if gap < max_gap:
-		return [true, overshoot_start]
-	return [false, 0]
+		return {"is_loop": true, "loop_end": overshoot_start}
+	return {"is_loop": false, "loop_end": 0}
 
 static func _check_sine(points: Array[Vector2], _max_deviation: float) -> Dictionary:
 	var pca_result := principal_axis_angle(points)

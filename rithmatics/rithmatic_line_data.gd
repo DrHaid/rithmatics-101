@@ -9,8 +9,9 @@ var color: Color
 var dismiss_timeout: float
 var clean_line: Array[Vector2]
 
-func _init(_line_type: LineType = LineType.NONE, _strength: float = 0, _dismiss_timeout: float = 4, debug: bool = false) -> void:
+func _init(_line_type: LineType = LineType.NONE, _clean_line: Array[Vector2] = [], _strength: float = 0, _dismiss_timeout: float = 4, debug: bool = false) -> void:
 	line_type = _line_type
+	clean_line = _clean_line
 	strength = _strength
 	dismiss_timeout = _dismiss_timeout
 
