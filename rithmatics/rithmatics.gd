@@ -11,7 +11,7 @@ class_name Rithmatics
 @export var debug_draw: bool = true
 
 var debug_line_template: PackedScene = load("res://debug_line.tscn")
-var line_dismiss_particles: PackedScene = load("res://rithmatics/line_dismiss_particles.tscn")
+var line_dismiss_particles: PackedScene = load("res://rithmatics/vfx/line_dismiss_particles.tscn")
 
 var lines: Array[RithmaticLine] = []
 var junction_manager := JunctionManager.new()

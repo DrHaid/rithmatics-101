@@ -8,7 +8,7 @@ var line_point_distance_threshold: float = 5
 var is_clicked: bool = false
 var current_mouse_pos: Vector2 = Vector2.ZERO
 
-var line_template: PackedScene = load("res://rithmatics/rithmatic_line.tscn")
+var line_template: PackedScene = load("res://rithmatics/core/rithmatic_line.tscn")
 var current_line: RithmaticLine
 
 func _input(event: InputEvent) -> void:
