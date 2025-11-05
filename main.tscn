@@ -1,15 +1,23 @@
-[gd_scene load_steps=4 format=3 uid="uid://3mfckwgbmtka"]
+[gd_scene load_steps=7 format=3 uid="uid://3mfckwgbmtka"]
 
-[ext_resource type="Texture2D" uid="uid://cwhkgdghi5v1s" path="res://drawing/background.jpg" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://caevk45jqkqsg" path="res://drawing/drawing.gd" id="2_0xm2m"]
+[ext_resource type="Shader" uid="uid://dkea2ayi1vtsu" path="res://drawing/chalkboard/chalkboard_shader.tres" id="2_1bvp3"]
 [ext_resource type="Script" uid="uid://lxtolc30i163" path="res://rithmatics/rithmatics.gd" id="3_h2yge"]
+[ext_resource type="Texture2D" uid="uid://ycmhy23yog4g" path="res://drawing/chalkboard/chalkboard_noise_2d.tres" id="3_lquwl"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lquwl"]
+shader = ExtResource("2_1bvp3")
+shader_parameter/NoiseTexture2D = ExtResource("3_lquwl")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_7mycd"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Background" type="Sprite2D" parent="."]
 modulate = Color(0.753984, 0.753984, 0.753984, 1)
-scale = Vector2(0.642593, 0.642593)
-texture = ExtResource("1_ig7tw")
+material = SubResource("ShaderMaterial_lquwl")
+scale = Vector2(1280, 720)
+texture = SubResource("CanvasTexture_7mycd")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
