@@ -25,7 +25,7 @@ func _on_drawing_line_finished(line: RithmaticLine) -> void:
 	var data := RithmaticLineData.new(
 		classification.type,
 		classification.clean_line,
-		classification.strength,
+		classification.score,
 		dismiss_time,
 		debug_draw
 	)
