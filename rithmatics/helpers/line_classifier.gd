@@ -13,8 +13,9 @@ class_name LineClassifier
 static func classify(points: Array[Vector2], max_line_deviation: float,
 					 max_circle_gap: float, max_circle_deviation: float,
 					 max_sine_deviation: float) -> Dictionary:
-	if _is_straight_line(points, max_line_deviation):
-		return {"type": RithmaticLineData.LineType.FORBIDDENCE, "strength": 1.0, "clean_line": points}
+	var straight_result := _check_straight_line(points, max_line_deviation)
+	if straight_result.score > 0.5:
+		return {"type": RithmaticLineData.LineType.FORBIDDENCE, "strength": straight_result.score, "clean_line": points}
 	
 	var circle_result := _check_circle(points, max_circle_gap, max_circle_deviation)
 	if circle_result.score > 0.5:
@@ -26,21 +27,24 @@ static func classify(points: Array[Vector2], max_line_deviation: float,
 
 	return {"type": RithmaticLineData.LineType.NONE, "strength": 0.0, "clean_line": points}
 
-static func _is_straight_line(points: Array[Vector2], max_deviation: float) -> bool:
+static func _check_straight_line(points: Array[Vector2], max_deviation: float) -> Dictionary:
 	if points.size() < 5:
-		return false
+		return {"score": 0.0}
 
-	var middle_point: int = round(points.size() / 2.0)
-	var start_sample := (points[middle_point] - points[0]).normalized()
-	var end_sample := (points[points.size() - 1] - points[middle_point]).normalized()
-	var base_dir := (start_sample + end_sample) / 2
+	var start := points[0]
+	var end := points[-1]
+	var line_dir := (end - start).normalized()
 
+	var max_dist: float = 0.0
 	for i in range(1, points.size() - 1):
-		var seg_dir := (points[i + 1] - points[i]).normalized()
-		var angle := rad_to_deg(base_dir.angle_to(seg_dir))
-		if abs(angle) > max_deviation:
-			return false
-	return true
+		var to_point := points[i] - start
+		var proj_length := to_point.dot(line_dir)
+		var proj_point := start + line_dir * proj_length
+		var perp_dist := points[i].distance_to(proj_point)
+		max_dist = max(max_dist, perp_dist)
+
+	var score: float = clamp(1.0 - (max_dist / max_deviation), 0.0, 1.0)
+	return {"score": score}
 
 ## returns Dictionary:
 ## [codeblock]
